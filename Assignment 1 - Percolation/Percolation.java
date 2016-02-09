@@ -2,49 +2,72 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {                 // create N-by-N grid, with all sites blocked
   private boolean[][] grid;
-  private boolean[][] gridSite;
   private WeightedQuickUnionUF gridstatus = null;
   private int depth;
+  private boolean perc = false;
+
   public Percolation(int k) {
     if (k <= 0) {
          throw new java.lang.IllegalArgumentException();
     }
     grid = new boolean[k+2][k+2];              // true = open, false = blocked
-    gridSite = new boolean[k+2][k+2];          // true = full, false = empty
-    for (int x = 0; x < k + 2; x++) {
-      gridSite[0][x] = true;
-    }
-    gridstatus = new WeightedQuickUnionUF(k * k + 1);    // the connection status, position 0 = FULL
+    gridstatus = new WeightedQuickUnionUF(k * k + 2);    // the connection status, position 0 = TOP, last: percolate controller
     depth = k;
   } 
+
   public void open(int i, int j) {        // open site (row i, column j) if it is not open already
     checkRange(i, j);                     // check whether it's effective
     if (isOpen(i, j)) return;             // check whether it's already opened
     grid[i][j] = true;                    // OPEN IT.
 
-    int union_pos = (depth)*(i - 1) + j;
+    int open_nb_cnt = 0;
+    int[] nb = {0, 0, 0, 0};              // Neighbors
 
-    if ((i >= 1) && (i <= depth)) {         // check whether it's full
-        if (gridSite[i-1][j] || gridSite[i+1][j] || gridSite[i][j+1] || gridSite[i][j-1]) {
-            gridSite[i][j] = true;          // It's full because one of its neighbors is full
-            gridstatus.union(0, union_pos);
-        }
+    /* 1. Check whether is there any open neighborhood around, if only one => just union them
+       2. If more than one: check their connectivity. if connected => just union anyone
+       3. If not, union all of them.*/
+    if (i == 1) {
+      gridstatus.union(0, reduceDim(i, j));      // First row, it's connected with TOP (FULL)
     }
-    int count = 1;
-    while (count != 0) {                       // Now check whether there are status changes caused by this open
-        count = 0;
-        for (int y = 1; y <= depth; ++y) {     // Candidate which may change the status, and one of its neighbor is full
-            for (int x = 1; x <= depth; ++x) {
-                if (isOpen(y, x) && !isFull(y, x) && 
-                  (gridSite[y-1][x] || gridSite[y+1][x] || gridSite[y][x-1] || gridSite[y][x+1])) { 
-                      gridSite[y][x] = true;
-                      gridstatus.union(0, (depth * (y - 1) + x));
-                      count++;
-                    }
-                }
-            }
-        }    
-  } 
+    if (i == depth) {
+      gridstatus.union(reduceDim(i, j), (depth * depth + 1));
+    }
+
+    if (grid[i-1][j] && (i > 1)) {        // Check its neighborhood are open or not
+      nb[open_nb_cnt] = reduceDim(i-1, j);
+      open_nb_cnt++;
+    }
+    if (grid[i+1][j] && (i < depth)) { 
+      nb[open_nb_cnt] = reduceDim(i+1, j);
+      open_nb_cnt++;
+    }
+    if (grid[i][j-1] && (j > 1)) { 
+      nb[open_nb_cnt] = reduceDim(i, j-1);
+      open_nb_cnt++;
+    }
+    if (grid[i][j+1] && (j < depth)) { 
+      nb[open_nb_cnt] = reduceDim(i, j+1);
+      open_nb_cnt++;
+    }
+
+    if (open_nb_cnt == 1) {     // Only one neighbor => Just union them
+      gridstatus.union(reduceDim(i, j), nb[0]);
+    }
+
+    if (open_nb_cnt >= 2) {     // Two open neighbors, check if neighbors are connected
+      gridstatus.union(reduceDim(i, j), nb[0]);
+      for (int num = open_nb_cnt-1; num >= 1; num--) {
+        if (!gridstatus.connected(reduceDim(i, j), nb[num])) {
+          gridstatus.union(reduceDim(i, j), nb[num]);
+        }
+      }
+    }
+  }
+
+  private int reduceDim(int i, int j) {    // Convert the 2D array coordinate into 1D
+    int pos = (depth)*(i - 1) + j;
+    return pos;
+  }
   public boolean isOpen(int i, int j) {   // is site (row i, column j) open?
     checkRange(i, j);
     return grid[i][j];
@@ -54,17 +77,7 @@ public class Percolation {                 // create N-by-N grid, with all sites
     return gridstatus.connected(0, ((depth)*(i - 1) + j));
   }
   public boolean percolates() {           // does the system percolate?
-    int x = 1;
-    boolean perc_or_not = false;
-    while ((x <= depth) && !perc_or_not) {
-        if (isFull(depth, x)) {
-            perc_or_not = true;
-        }
-        else {
-            x++;
-        }
-    }
-    return perc_or_not;
+    return gridstatus.connected(0, (depth * depth + 1));
   } 
   private void checkRange(int i, int j) {
     if (i < 1 || j < 1 || i > depth || j > depth) {

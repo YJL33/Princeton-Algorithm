@@ -1,3 +1,19 @@
+/******************************************************************************
+ *  Compilation:  javac Percolation.java
+ *  Execution:    java Percolation input.txt
+ *  Dependencies: StdIn.java StdOut.java
+ *  
+ *  Details: check http://coursera.cs.princeton.edu/algs4/assignments/percolation.html
+ *  
+ *  Corner cases.
+ *  By convention, the row and column indices i and j are integers between 1 and N, where (1, 1) is the upper-left site:
+ *  Throw a java.lang.IndexOutOfBoundsException if any argument to open(), isOpen(), or isFull() is outside its prescribed range.
+ *  The constructor should throw a java.lang.IllegalArgumentException if N ≦ 0.
+ *  
+ *  Performance requirements.
+ *  The constructor should take time proportional to N2; all methods should
+ *  take constant time + a constant number of calls to the union-find methods union(), find(), connected(), and count().
+******************************************************************************/
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {                 // create N-by-N grid, with all sites blocked

@@ -14,36 +14,35 @@ import edu.princeton.cs.algs4.StdStats;
 public class PercolationStats {
    private double[] outputs = new double[4];
 
-   public PercolationStats(int N, int T) {   // perform T independent experiments on an N-by-N grid
-      if (N <= 0 || T <= 0) {
+   public PercolationStats(int n, int t) {   // perform t independent experiments on an n-by-n grid
+      if (n <= 0 || t <= 0) {
          throw new java.lang.IllegalArgumentException();
       }
-      double[] results = new double[T];
-      for (int num_of_exec = 0; num_of_exec < T; num_of_exec++) {
-         Percolation perc = new Percolation(N);      // Step 1
+      double[] results = new double[t];
+      for (int numOfExec = 0; numOfExec < t; numOfExec++) {
+         Percolation perc = new Percolation(n);      // Step 1
          while (!perc.percolates()) {
-            int row = StdRandom.uniform(1, N+1);      // Step 2.1
-            /*debug*///System.out.printf("[row: %d,", row);     
-            int col = StdRandom.uniform(1, N+1);
-            /*debug*///System.out.printf("col: %d]\n", col);
+            int row = StdRandom.uniform(1, n+1);      // Step 2.1
+            // System.out.printf("[row: %d,", row);     
+            int col = StdRandom.uniform(1, n+1);
+            // System.out.printf("col: %d]\n", col);
             perc.open(row, col);                     // Step 2.2
          }
          double openSites = 0;                       // Step 3
-         for (int row = 1; row <= N; row++) {
-            for (int col = 1; col <= N; col++) {
+         for (int row = 1; row <= n; row++) {
+            for (int col = 1; col <= n; col++) {
                if (perc.isOpen(row, col)) {
                   openSites += 1;
                }
             }
          }
-         results[num_of_exec] = (openSites)/(N * N);
+         results[numOfExec] = (openSites)/(n * n);
       }
       outputs[0] = StdStats.mean(results);
       outputs[1] = StdStats.stddev(results);
       outputs[2] = StdStats.mean(results) - 1.96*StdStats.stddev(results)/(Math.sqrt(results.length)); 
       outputs[3] = StdStats.mean(results) + 1.96*StdStats.stddev(results)/(Math.sqrt(results.length));
-      /*debug*/
-      //System.out.printf("mean: %f, stddev: %f, conf: %f, %f\n", outputs[0], outputs[1], outputs[2], outputs[3]);
+      // System.out.printf("mean: %f, stddev: %f, conf: %f, %f\n", outputs[0], outputs[1], outputs[2], outputs[3]);
    }
 
    public double mean() {                    // sample mean of percolation threshold
@@ -60,10 +59,10 @@ public class PercolationStats {
    }
 
    public static void main(String[] args) {  // test client (described below)
-      PercolationStats perc_set = new PercolationStats(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
-      System.out.printf("mean: %f\n", perc_set.mean());
-      System.out.printf("stddev: %f\n", perc_set.stddev());
-      System.out.printf("conf: %f, %f\n", perc_set.confidenceLo(), perc_set.confidenceHi());
+      PercolationStats percSet = new PercolationStats(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+      System.out.printf("mean: %f\n", percSet.mean());
+      System.out.printf("stddev: %f\n", percSet.stddev());
+      System.out.printf("conf: %f, %f\n", percSet.confidenceLo(), percSet.confidenceHi());
    }
 }
 

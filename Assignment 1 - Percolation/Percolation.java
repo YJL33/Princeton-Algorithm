@@ -1,18 +1,18 @@
 /******************************************************************************
- *  Compilation:  javac Percolation.java
- *  Execution:    java Percolation input.txt
- *  Dependencies: StdIn.java StdOut.java
- *  
- *  Details: check http://coursera.cs.princeton.edu/algs4/assignments/percolation.html
- *  
- *  Corner cases.
- *  By convention, the row and column indices i and j are integers between 1 and N, where (1, 1) is the upper-left site:
- *  Throw a java.lang.IndexOutOfBoundsException if any argument to open(), isOpen(), or isFull() is outside its prescribed range.
- *  The constructor should throw a java.lang.IllegalArgumentException if N ≦ 0.
- *  
- *  Performance requirements.
- *  The constructor should take time proportional to N2; all methods should
- *  take constant time + a constant number of calls to the union-find methods union(), find(), connected(), and count().
+ Compilation:  javac Percolation.java
+ Execution:    java Percolation input.txt
+ Dependencies: StdIn.java StdOut.java
+ 
+ Details: check http://coursera.cs.princeton.edu/algs4/assignments/percolation.html
+ 
+ Corner cases.
+ By convention, the row and column indices i and j are integers between 1 and N, where (1, 1) is the upper-left site:
+ Throw a java.lang.IndexOutOfBoundsException if any argument to open(), isOpen(), or isFull() is outside its prescribed range.
+ The constructor should throw a java.lang.IllegalArgumentException if N ≦ 0.
+ 
+ Performance requirements.
+ The constructor should take time proportional to N2; all methods should
+ take constant time + a constant number of calls to the union-find methods union(), find(), connected(), and count().
 ******************************************************************************/
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
@@ -20,7 +20,6 @@ public class Percolation {                 // create N-by-N grid, with all sites
   private boolean[][] grid;
   private WeightedQuickUnionUF gridstatus = null;
   private int depth;
-  private boolean perc = false;
 
   public Percolation(int k) {
     if (k <= 0) {
@@ -36,7 +35,7 @@ public class Percolation {                 // create N-by-N grid, with all sites
     if (isOpen(i, j)) return;             // check whether it's already opened
     grid[i][j] = true;                    // OPEN IT.
 
-    int open_nb_cnt = 0;
+    int openNbCnt = 0;
     int[] nb = {0, 0, 0, 0};              // Neighbors
 
     /* 1. Check whether is there any open neighborhood around, if only one => just union them
@@ -50,29 +49,29 @@ public class Percolation {                 // create N-by-N grid, with all sites
     }
 
     if (grid[i-1][j] && (i > 1)) {        // Check its neighborhood are open or not
-      nb[open_nb_cnt] = reduceDim(i-1, j);
-      open_nb_cnt++;
+      nb[openNbCnt] = reduceDim(i-1, j);
+      openNbCnt++;
     }
     if (grid[i+1][j] && (i < depth)) { 
-      nb[open_nb_cnt] = reduceDim(i+1, j);
-      open_nb_cnt++;
+      nb[openNbCnt] = reduceDim(i+1, j);
+      openNbCnt++;
     }
     if (grid[i][j-1] && (j > 1)) { 
-      nb[open_nb_cnt] = reduceDim(i, j-1);
-      open_nb_cnt++;
+      nb[openNbCnt] = reduceDim(i, j-1);
+      openNbCnt++;
     }
     if (grid[i][j+1] && (j < depth)) { 
-      nb[open_nb_cnt] = reduceDim(i, j+1);
-      open_nb_cnt++;
+      nb[openNbCnt] = reduceDim(i, j+1);
+      openNbCnt++;
     }
 
-    if (open_nb_cnt == 1) {     // Only one neighbor => Just union them
+    if (openNbCnt == 1) {     // Only one neighbor => Just union them
       gridstatus.union(reduceDim(i, j), nb[0]);
     }
 
-    if (open_nb_cnt >= 2) {     // Two open neighbors, check if neighbors are connected
+    if (openNbCnt >= 2) {     // Two open neighbors, check if neighbors are connected
       gridstatus.union(reduceDim(i, j), nb[0]);
-      for (int num = open_nb_cnt-1; num >= 1; num--) {
+      for (int num = openNbCnt-1; num >= 1; num--) {
         if (!gridstatus.connected(reduceDim(i, j), nb[num])) {
           gridstatus.union(reduceDim(i, j), nb[num]);
         }

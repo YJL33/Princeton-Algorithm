@@ -33,8 +33,10 @@ in constant worst-case time; and construction in linear time; you may use a line
 amount of extra memory per iterator.
 
 ******************************************************************************/
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Iterator;
+import java.util.Collections;
 import edu.princeton.cs.algs4.StdRandom;  // compile: javac-algs4, exec: java-algs4
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
@@ -70,8 +72,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     Item pickitem = arr[pick];
     if (pick != numOfItems-1) {
       arr[pick] = arr[numOfItems-1];
-      arr[numOfItems-1] = null;
     }
+    arr[numOfItems-1] = null;
     if (numOfItems > 0 && numOfItems == arr.length/4) {
       resize(arr.length/2);
     }
@@ -89,13 +91,23 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     return new RandomQueIter();
   }        // return an independent iterator over items in random order
   private class RandomQueIter implements Iterator<Item> {
+    ArrayList<Item> random = new ArrayList<Item>();
+    private int pkd = 0;
+    public void RandomizedQueueIterator() {
+      for (int i = 0; i < numOfItems; i++)
+        random.add(arr[i]);
+      Collections.shuffle(random);
+      pkd = 0;
+    }
     public boolean hasNext() {
-      return numOfItems > 0;
+      return pkd < numOfItems;
     }
     public Item next() {
-      if (isEmpty())
+      if (!hasNext())
         throw new java.util.NoSuchElementException();
-      return dequeue();
+      Item res = random.get(pkd);
+      pkd++;
+      return res;
     }
     public void remove() {
       throw new java.lang.UnsupportedOperationException();

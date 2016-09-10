@@ -33,10 +33,7 @@ in constant worst-case time; and construction in linear time; you may use a line
 amount of extra memory per iterator.
 
 ******************************************************************************/
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
-import java.util.Collections;
 import edu.princeton.cs.algs4.StdRandom;  // compile: javac-algs4, exec: java-algs4
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
@@ -91,12 +88,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     return new RandomQueIter();
   }        // return an independent iterator over items in random order
   private class RandomQueIter implements Iterator<Item> {
-    ArrayList<Item> random = new ArrayList<Item>();
+    private Item[] random = (Item[]) new Object[numOfItems];
     private int pkd = 0;
-    public void RandomizedQueueIterator() {
-      for (int i = 0; i < numOfItems; i++)
-        random.add(arr[i]);
-      Collections.shuffle(random);
+    public RandomQueIter() {
+      for (int i = 0 ; i < numOfItems; i++) {
+        random[i] = arr[i];
+      }
+      StdRandom.shuffle(random);
       pkd = 0;
     }
     public boolean hasNext() {
@@ -105,7 +103,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public Item next() {
       if (!hasNext())
         throw new java.util.NoSuchElementException();
-      Item res = random.get(pkd);
+      Item res = random[pkd];
       pkd++;
       return res;
     }

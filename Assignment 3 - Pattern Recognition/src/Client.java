@@ -10,9 +10,11 @@ and draws to standard draw the line segments.
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
+import java.util.Timer;
 
 public class Client {
   public static void main(String[] args) {
+
 
     // read the n points from a file
     In in = new In(args[0]);
@@ -33,6 +35,8 @@ public class Client {
     }
     StdDraw.show();
 
+    
+    long starttime = System.nanoTime();
     // print and draw the line segments
     BruteCollinearPoints collinear = new BruteCollinearPoints(points);
     for (LineSegment segment : collinear.segments()) {
@@ -40,5 +44,19 @@ public class Client {
       segment.draw();
     }
     StdDraw.show();
+    long estimatedTime = System.nanoTime() - starttime;
+    StdOut.println(estimatedTime);
+    
+
+    long starttime2 = System.nanoTime();
+    FastCollinearPoints collinearf = new FastCollinearPoints(points);
+    for (LineSegment segment : collinearf.segments()) {
+      StdOut.println(segment);
+      segment.draw();
+    }
+    StdDraw.show();
+    long estimatedTime2 = System.nanoTime() - starttime2;
+    StdOut.println(estimatedTime2);
+
   }
 }

@@ -33,23 +33,27 @@ FastCollinearPoints should work even the input has 5 or more collinear points.
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import edu.princeton.cs.algs4.StdOut;
 
 public class FastCollinearPoints {
 
   private LineSegment[] segments;
-  private ArrayList<LineSegment> res = new ArrayList<>();
-  private HashMap<Double, Set<Point>> segHash = new HashMap<>();
+  private ArrayList<LineSegment> res;
+  private boolean isFinished = false;
+  private int numOfPoints;
 
   public FastCollinearPoints(Point[] points) {   // finds all segment with 4+ points
     isDupe(points);
     isNull(points);
 
     Point[] ptsCopy = Arrays.copyOf(points, points.length);
+    res = new ArrayList<>();
+    numOfPoints = points.length;
 
     // 1-3. use each point as origin, sort by the slope
     for (int p = 0; p < points.length; p++) {
+      if (isFinished) {
+        break;
+      }
       Arrays.sort(ptsCopy, points[p].slopeOrder());
       ArrayList<Point> temp = new ArrayList<>();
       double slope = 0;
@@ -101,22 +105,12 @@ public class FastCollinearPoints {
       temp.add(ori);
       Collections.sort(temp);
       Point start = temp.get(0);
-      Point end = temp.get(temp.size() - 1);
-      Boolean flag = true;
 
-      if (!segHash.isEmpty()) {
-        if (segHash.containsKey(slp) && segHash.get(slp).contains(end)) {
-          flag = false;
-        }
-      }
-
-      if (flag) {
-        res.add(new LineSegment(start, end));
-        if (segHash.containsKey(slp)) {
-          segHash.get(slp).add(end);
-        }
-        else {
-          segHash.put(slp, end);
+      if (start.compareTo(ori) == 0) {    // Add LineSegment only when ori is first
+        Point end = temp.get(temp.size() - 1);
+        res.add(new LineSegment(start, end));   // seems this would be good
+        if (temp.size() >= numOfPoints-2) {
+          isFinished = true;
         }
       }
     }

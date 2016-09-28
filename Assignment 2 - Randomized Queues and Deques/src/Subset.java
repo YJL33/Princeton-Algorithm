@@ -11,14 +11,15 @@ You may assume that 0 ≦ k ≦ N, where N is the number of string on standard i
 import edu.princeton.cs.algs4.StdIn;   // compile with javac-algs4, execute with java-algs4
 
 public class Subset {
-  public static void main(String[] args) {
-    RandomizedQueue<String> rq = new RandomizedQueue<String>();  // RandomizedQueue in the same dir
-    int k = Integer.parseInt(args[0]); 
-    while (StdIn.hasNextLine() && !StdIn.isEmpty()) {
-      rq.enqueue(StdIn.readString());
+    public static void main(String[] args) {
+        // RandomizedQueue in the same dir
+        RandomizedQueue<String> rq = new RandomizedQueue<String>();
+        int k = Integer.parseInt(args[0]); 
+        while (StdIn.hasNextLine() && !StdIn.isEmpty()) {
+            rq.enqueue(StdIn.readString());
+        }
+        for (int i = 0; i < k; i++) {
+            System.out.println(rq.dequeue());
+        }
     }
-    for (int i = 0; i < k; i++) {
-      System.out.println(rq.dequeue());
-    }
-  }
 }

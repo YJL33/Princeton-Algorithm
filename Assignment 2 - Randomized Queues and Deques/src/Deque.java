@@ -37,108 +37,108 @@ import java.util.Iterator;
 
 public class Deque<Item> implements Iterable<Item> {
 
-  private class Node {
-    private Item value = null;     // Generic: value can be anything
-    private Node next = null;      // pointing toward tail
-    private Node prev = null;      // pointing toward head
-  }
+    private class Node {
+        private Item value = null;         // Generic: value can be anything
+        private Node next = null;          // pointing toward tail
+        private Node prev = null;          // pointing toward head
+    }
 
-  private Node head;        // head of dequeue
-  private Node tail;        // tail of dequeue
-  private int numOfNodes;   // size of dequeue
-  
-  public Deque() {
-    head = null;
-    tail = null;
-    numOfNodes = 0;
-  }               // construct an empty deque
-  
-  public boolean isEmpty() {
-    return numOfNodes == 0;
-  }               // is the deque empty?
-  
-  public int size() {
-    return numOfNodes;
-  }             // return the number of items on the deque
-  
-  public void addFirst(Item item) {
-    if (item == null)
-      throw new java.lang.NullPointerException("Nothing to add");
-    Node newhead = new Node();
-    newhead.value = item;
-    newhead.next = head;
-    newhead.prev = null;
-    if (head != null) head.prev = newhead;
-    head = newhead;
-    numOfNodes++;
-    if (tail == null) tail = head;
+    private Node head;                // head of dequeue
+    private Node tail;                // tail of dequeue
+    private int numOfNodes;           // size of dequeue
+    
+    public Deque() {
+        head = null;
+        tail = null;
+        numOfNodes = 0;
+    }                             // construct an empty deque
+    
+    public boolean isEmpty() {
+        return numOfNodes == 0;
+    }                             // is the deque empty?
+    
+    public int size() {
+        return numOfNodes;
+    }                         // return the number of items on the deque
+    
+    public void addFirst(Item item) {
+        if (item == null)
+            throw new java.lang.NullPointerException("Nothing to add");
+        Node newhead = new Node();
+        newhead.value = item;
+        newhead.next = head;
+        newhead.prev = null;
+        if (head != null) head.prev = newhead;
+        head = newhead;
+        numOfNodes++;
+        if (tail == null) tail = head;
 
-  }     // add the item to the front
-  
-  public void addLast(Item item) {
-    if (item == null)
-      throw new java.lang.NullPointerException("Nothing to add");
-    Node newtail = new Node();
-    newtail.value = item;
-    newtail.prev = tail;
-    newtail.next = null;
-    if (tail != null) tail.next = newtail;
-    tail = newtail;
-    numOfNodes++;
-    if (head == null) head = tail;
-  }      // add the item to the end
-  
-  public Item removeFirst() {
-    if (isEmpty()) throw new java.util.NoSuchElementException("No more element!");
-    Item firstval = head.value;
-    if (numOfNodes == 1) {
-      head = null;
-      tail = null;
-    }
-    else {
-      head = head.next;
-      head.prev = null;
-    }
-    numOfNodes--;
-    return firstval;
-  }       // remove and return the item from the front
-  
-  public Item removeLast() {
-    if (isEmpty()) throw new java.util.NoSuchElementException("No more element!");
-    Item lastval = tail.value;
-    if (numOfNodes == 1) {
-      head = null;
-      tail = null;
-    }
-    else {
-      tail = tail.prev;
-      tail.next = null;
-    }
-    numOfNodes--;
-    return lastval;
-  }        // remove and return the item from the end
+    }         // add the item to the front
+    
+    public void addLast(Item item) {
+        if (item == null)
+            throw new java.lang.NullPointerException("Nothing to add");
+        Node newtail = new Node();
+        newtail.value = item;
+        newtail.prev = tail;
+        newtail.next = null;
+        if (tail != null) tail.next = newtail;
+        tail = newtail;
+        numOfNodes++;
+        if (head == null) head = tail;
+    }            // add the item to the end
+    
+    public Item removeFirst() {
+        if (isEmpty()) throw new java.util.NoSuchElementException("No more element!");
+        Item firstval = head.value;
+        if (numOfNodes == 1) {
+            head = null;
+            tail = null;
+        }
+        else {
+            head = head.next;
+            head.prev = null;
+        }
+        numOfNodes--;
+        return firstval;
+    }             // remove and return the item from the front
+    
+    public Item removeLast() {
+        if (isEmpty()) throw new java.util.NoSuchElementException("No more element!");
+        Item lastval = tail.value;
+        if (numOfNodes == 1) {
+            head = null;
+            tail = null;
+        }
+        else {
+            tail = tail.prev;
+            tail.next = null;
+        }
+        numOfNodes--;
+        return lastval;
+    }        // remove and return the item from the end
  
-  public Iterator<Item> iterator() {
-    return new DequeIter();
-  }    // return an iterator over items in order from front to end
-  
-  private class DequeIter implements Iterator<Item> {
-    private Node currentNode = head;
-    @Override
-    public boolean hasNext() {
-      return currentNode != null;
+    public Iterator<Item> iterator() {
+        return new DequeIter();
+    }        // return an iterator over items in order from front to end
+    
+    private class DequeIter implements Iterator<Item> {
+        private Node currentNode = head;
+        @Override
+        public boolean hasNext() {
+            return currentNode != null;
+        }
+        @Override
+        public Item next() {
+            if (!hasNext())
+                throw new java.util.NoSuchElementException("No more element!");
+            Item res = currentNode.value;
+            currentNode = currentNode.next;
+            return res;
+        }
+        @Override
+        public void remove() {
+            throw new java.lang.UnsupportedOperationException("Unsupported operation");
+        }
     }
-    @Override
-    public Item next() {
-      if (!hasNext())
-        throw new java.util.NoSuchElementException("No more element!");
-      Item res = currentNode.value;
-      currentNode = currentNode.next;
-      return res;
-    }
-    @Override
-    public void remove() {
-      throw new java.lang.UnsupportedOperationException("Unsupported operation");
-    }
-  }
 }

@@ -37,80 +37,80 @@ import java.util.Iterator;
 import edu.princeton.cs.algs4.StdRandom;  // compile: javac-algs4, exec: java-algs4
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
-  private Item[] arr = (Item[]) new Object[1];      // cast here, necessary
-  private int numOfItems = 0;
-  public RandomizedQueue() {
-    numOfItems = 0;
-  }                // construct an empty randomized queue
-  public boolean isEmpty() {
-    return numOfItems == 0;
-  }                // is the queue empty?
-  public int size() {
-    return numOfItems;
-  }                // return the number of items on the queue
-  private void resize(int capacity) {
-    Item[] copy = (Item[]) new Object[capacity];
-    for (int i = 0; i < numOfItems; i++)
-      copy[i] = arr[i];
-    arr = copy;
-  }
-  public void enqueue(Item item) {
-    if (item == null) {
-      throw new java.lang.NullPointerException();
+    private Item[] arr = (Item[]) new Object[1];        // cast here, necessary
+    private int numOfItems = 0;
+    public RandomizedQueue() {
+        numOfItems = 0;
+    }                                // construct an empty randomized queue
+    public boolean isEmpty() {
+        return numOfItems == 0;
+    }                                // is the queue empty?
+    public int size() {
+        return numOfItems;
+    }                                // return the number of items on the queue
+    private void resize(int capacity) {
+        Item[] copy = (Item[]) new Object[capacity];
+        for (int i = 0; i < numOfItems; i++)
+            copy[i] = arr[i];
+        arr = copy;
     }
-    if (numOfItems == arr.length) resize(2*numOfItems);
-    arr[numOfItems++] = item;
-  }          // add the item
-  public Item dequeue() {
-    if (isEmpty()) {
-      throw new java.util.NoSuchElementException();
+    public void enqueue(Item item) {
+        if (item == null) {
+            throw new java.lang.NullPointerException();
+        }
+        if (numOfItems == arr.length) resize(2*numOfItems);
+        arr[numOfItems++] = item;
+    }                    // add the item
+    public Item dequeue() {
+        if (isEmpty()) {
+            throw new java.util.NoSuchElementException();
+        }
+        int pick = StdRandom.uniform(numOfItems);
+        Item pickitem = arr[pick];
+        if (pick != numOfItems-1) {
+            arr[pick] = arr[numOfItems-1];
+        }
+        arr[numOfItems-1] = null;
+        if (numOfItems > 0 && numOfItems == arr.length/4) {
+            resize(arr.length/2);
+        }
+        numOfItems--;
+        return pickitem;
+    }                                     // remove and return a random item
+    public Item sample() {
+        if (isEmpty()) {
+            throw new java.util.NoSuchElementException();
+        }
+        int pick = StdRandom.uniform(numOfItems);
+        return arr[pick];
+    }                               // return (but do not remove) a random item
+    public Iterator<Item> iterator() {
+        return new RandomQueIter();
+    }       // return an independent iterator over items in random order
+    private class RandomQueIter implements Iterator<Item> {
+        private Item[] random = (Item[]) new Object[numOfItems];
+        private int pkd = 0;
+        public RandomQueIter() {
+            for (int i = 0 ; i < numOfItems; i++) {
+                random[i] = arr[i];
+            }
+            StdRandom.shuffle(random);
+            pkd = 0;
+        }
+        public boolean hasNext() {
+            return pkd < numOfItems;
+        }
+        public Item next() {
+            if (!hasNext())
+                throw new java.util.NoSuchElementException();
+            Item res = random[pkd];
+            pkd++;
+            return res;
+        }
+        public void remove() {
+            throw new java.lang.UnsupportedOperationException();
+        }
     }
-    int pick = StdRandom.uniform(numOfItems);
-    Item pickitem = arr[pick];
-    if (pick != numOfItems-1) {
-      arr[pick] = arr[numOfItems-1];
-    }
-    arr[numOfItems-1] = null;
-    if (numOfItems > 0 && numOfItems == arr.length/4) {
-      resize(arr.length/2);
-    }
-    numOfItems--;
-    return pickitem;
-  }                   // remove and return a random item
-  public Item sample() {
-    if (isEmpty()) {
-      throw new java.util.NoSuchElementException();
-    }
-    int pick = StdRandom.uniform(numOfItems);
-    return arr[pick];
-  }                    // return (but do not remove) a random item
-  public Iterator<Item> iterator() {
-    return new RandomQueIter();
-  }        // return an independent iterator over items in random order
-  private class RandomQueIter implements Iterator<Item> {
-    private Item[] random = (Item[]) new Object[numOfItems];
-    private int pkd = 0;
-    public RandomQueIter() {
-      for (int i = 0 ; i < numOfItems; i++) {
-        random[i] = arr[i];
-      }
-      StdRandom.shuffle(random);
-      pkd = 0;
-    }
-    public boolean hasNext() {
-      return pkd < numOfItems;
-    }
-    public Item next() {
-      if (!hasNext())
-        throw new java.util.NoSuchElementException();
-      Item res = random[pkd];
-      pkd++;
-      return res;
-    }
-    public void remove() {
-      throw new java.lang.UnsupportedOperationException();
-    }
-  }
-  public static void main(String[] args) {
-  }  // unit testing
+    public static void main(String[] args) {
+    }    // unit testing
 }

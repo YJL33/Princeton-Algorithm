@@ -17,22 +17,19 @@
 ******************************************************************************/
 import java.util.ArrayList;
 import java.util.Iterator;
-import edu.princeton.cs.algs4.MinPQ;
 import java.util.NoSuchElementException;
 
-public class Board implements Comparable<Board> {
+public class Board {
 
     private Board[] neighbors;      // a 1D array that stores neighbor boards
     private int[][] blocks;         // a 2D array describes current board
-    private int[][] goal;           // a 2D array describes goal board
     private int side;               // the length of board
 
     // construct a board from an n-by-n array of blocks
     // (where blocks[i][j] = block in row i, column j)
     public Board(int[][] blocks) {
-
         this.blocks = blocks;
-        side = blocks.length;
+        this.side = blocks.length;
     }
     // Custom method: get this block's neighbors
     private void getNeighbors() {
@@ -97,7 +94,7 @@ public class Board implements Comparable<Board> {
     public boolean isGoal() {
         return hamming() == 0;
     }
-    public int compareTo(Board x) {
+    private int compareTo(Board x) {
         if (manhattan() == x.manhattan()) {
             return 0;
         }
@@ -153,8 +150,9 @@ public class Board implements Comparable<Board> {
         }
         return true;
     }
+    /*
     @Override
-    public int hashCode() {
+    private int hashCode() {
         final int prime = 2;
         int res = 1;
         for (int pos=0; pos+1<side*side; pos++) {
@@ -162,6 +160,7 @@ public class Board implements Comparable<Board> {
         }
         return res;
     }
+    */
     // all neighboring boards
     public Iterable<Board> neighbors() {
         return new Iterable<Board>() {

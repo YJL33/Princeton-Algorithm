@@ -26,18 +26,22 @@ public class Solver {
     private SearchNode goal;
     
     private class SearchNode {
-        private int moves;
-        private Board board;
-        private SearchNode preNode;
+        private int moves;          // how many moves cost from initial
+        private Board board;        // current board status
+        private SearchNode preNode; // last board status
         
-        public SearchNode(Board b) {
-            moves = 0;
-            preNode = null;
+        public SearchNode(Board b) {    // e.g. (move, preNode, board)
+            moves = 0;                  // initial: (0, null, initial)
+            preNode = null;             // goal: (x, NodeBeforeGoal, goal)
             board = b;
         }
     }
     
     // find a solution to the initial board (using the A* algorithm)
+    // 1. start from initial and its twin (only one of them can reach the goal)
+    // 2. put each of its neighbor into PQ
+    // 3. pick out the closest (to goal) one from PQ
+    // 4. repeat 1-3 until origin or twin reached the goal.
     public Solver(Board initial) {
         /* main search node */
         PriorityOrder po = new PriorityOrder();
@@ -82,6 +86,7 @@ public class Solver {
             goal = null;
     }
     
+    /* how priority queue sort */
     private class PriorityOrder implements Comparator<SearchNode> {
         public int compare(SearchNode s1, SearchNode s2) {
             int priority1 = s1.board.manhattan() + s1.moves;
@@ -108,14 +113,12 @@ public class Solver {
     public Iterable<Board> solution() {
         if (!isSolvable())  return null;
         ArrayList<Board> bStack = new ArrayList<Board>();
-        ArrayList<Board> ans = new ArrayList<Board>();
         for (SearchNode s = goal; s != null; s = s.preNode)
-            bStack.add(s.board);
+            bStack.add(s.board);            // trace back from goal
         
         if (bStack.size() > 0) {
-            Collections.reverse(bStack);
-            ans = bStack;
-            return ans;
+            Collections.reverse(bStack);    // reverse the solution
+            return bStack;
         }
         else {
             return null;

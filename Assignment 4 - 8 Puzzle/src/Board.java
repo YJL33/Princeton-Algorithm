@@ -22,129 +22,128 @@ import java.util.NoSuchElementException;
 public class Board {
 
     private Board[] neighbors;      // a 1D array that stores neighbor boards
-    private int[][] blocks;         // a 2D array describes current board
+    private int[] tile;
     private int side;               // the length of board
 
-    // construct a board from an n-by-n array of blocks
-    // (where blocks[i][j] = block in row i, column j)
     public Board(int[][] blocks) {
-        this.blocks = blocks;
-        this.side = blocks.length;
+        this(convertToOneD(blocks), blocks.length);
     }
+    private Board(int[] oneD, int sz) {       // Overload => make 1D tile
+        this.side = sz;
+        this.tile = oneD;
+    }
+
+    private static int[] convertToOneD(int[][] twoD) {
+        int[] oneD = new int[twoD.length * twoD.length];
+        for (int i = 0; i < twoD.length; i++) {
+            for (int j = 0; j < twoD[0].length; j++) {
+                oneD[i * twoD.length + j] = twoD[i][j];
+            }
+        }
+        return oneD;
+    }
+
     // Custom method: get this block's neighbors
     private void getNeighbors() {
         // we don't know the number of neighbors now, so use arraylist now
         ArrayList<Board> nbs = new ArrayList<>();
         int zpos = 0;
         while (zpos+1 < side*side) {
-            if (blocks[zpos/side][zpos%side] == 0) {
+            if (tile[zpos] == 0) {
                 break;
             }
             zpos++;
         }
-        if (zpos/side > 0) {
-            int[][] nb = copy(blocks);
-            swapGrid(nb, zpos/side, zpos%side, (zpos/side)-1, zpos%side);
-            nbs.add(new Board(nb));
+        if (zpos >= side) {
+            int[] nb = copy(tile);
+            swapGrid(nb, zpos, zpos-side);
+            nbs.add(new Board(nb, side));
         }
-        if (zpos/side < side-1) {
-            int[][] nb = copy(blocks);
-            swapGrid(nb, zpos/side, zpos%side, (zpos/side)+1, zpos%side);
-            nbs.add(new Board(nb));
+        if (zpos < side*(side-1)) {
+            int[] nb = copy(tile);
+            swapGrid(nb, zpos, zpos+side);
+            nbs.add(new Board(nb, side));
         }
-        if (zpos%side > 0) {
-            int[][] nb = copy(blocks);
-            swapGrid(nb, zpos/side, zpos%side, (zpos/side), (zpos%side)-1);
-            nbs.add(new Board(nb));
+        if (zpos % side > 0) {
+            int[] nb = copy(tile);
+            swapGrid(nb, zpos, zpos-1);
+            nbs.add(new Board(nb, side));
         }
-        if (zpos%side < side-1) {
-            int[][] nb = copy(blocks);
-            swapGrid(nb, zpos/side, zpos%side, (zpos/side), (zpos%side)+1);
-            nbs.add(new Board(nb));
+        if (zpos % side < side-1) {
+            int[] nb = copy(tile);
+            swapGrid(nb, zpos, zpos+1);
+            nbs.add(new Board(nb, side));
         }
         neighbors = nbs.toArray(new Board[nbs.size()]);
     }
-
     // board dimension n
     public int dimension() {
         return side;
     }
-    // number of blocks out of place
+    // number of block out of place
     public int hamming() {
-        int count = 0;
-        for (int pos=0; pos+1<(side*side); pos++) {
-            if (blocks[pos/side][pos%side] != pos+1) count++;
+        int count = 0;           // Here we ignore the last position
+        for (int pos = 0; pos+1 < (side*side); pos++) {
+            if (tile[pos] != pos+1) count++;
         }
         return count;
     }
-    // sum of Manhattan distances between blocks and goal
+    // sum of Manhattan distances between tile and goal
     public int manhattan() {
         int dist = 0;
-        for (int goalpos=0; goalpos+1<(side*side); goalpos++) {
-            int pos1=0;
-            while (pos1+1<(side*side)) {
-                if (blocks[pos1/side][pos1%side] == goalpos+1) break;
-                pos1++;
+        for (int goalpos = 0; goalpos+1 < (side*side); goalpos++) {
+            int tilepos = 0;
+            while (tilepos+1 < (side*side)) {
+                if (tile[tilepos] == goalpos+1) break;
+                tilepos++;
             }
-            dist += Math.abs(pos1/side-goalpos/side) + Math.abs(pos1%side-goalpos%side);
+            dist += Math.abs(tilepos/side - goalpos/side) +
+                    Math.abs(tilepos % side - goalpos % side);
         }
         return dist;
     }
-    // is this board the goal board?
     public boolean isGoal() {
         return hamming() == 0;
     }
     private int compareTo(Board x) {
-        if (manhattan() == x.manhattan()) {
-            return 0;
-        }
-        if (manhattan() > x.manhattan()) {
-            return 1;
-        }
+        if (manhattan() == x.manhattan()) { return 0; }
+        if (manhattan() > x.manhattan()) { return 1; }
         return -1;
     }
-
-    // custom methods: copy a 2D-array.
-    private int[][] copy(int[][] arrayToCopy) {
-        int[][] copy = new int[arrayToCopy.length][];
-        for (int r = 0; r < arrayToCopy.length; r++) {
-            copy[r] = arrayToCopy[r].clone();
-        }
-        return copy;
+    // custom methods: copy a 1D-array.
+    private int[] copy(int[] arrayToCopy) {
+        return arrayToCopy.clone();
     }
-    // custom method: swap two value in a 2D-array.
-    private void swapGrid(int[][] blocks,
-        int iFirstGrid, int jFirstGrid, int iSecondGrid, int jSecondGrid) {
-        int firstValue = blocks[iFirstGrid][jFirstGrid];
-        blocks[iFirstGrid][jFirstGrid] = blocks[iSecondGrid][jSecondGrid];
-        blocks[iSecondGrid][jSecondGrid] = firstValue;
+    // custom method: swap two value in a 1D-array.
+    private void swapGrid(int[] tl, int pos1, int pos2) {
+        int firstValue = tl[pos1];
+        tl[pos1] = tl[pos2];
+        tl[pos2] = firstValue;
     }
-
     // a board that is obtained by exchanging any pair of blocks
     public Board twin() {
-        int[][] twinBlocks = copy(blocks);
+        int[] twinBlocks = copy(tile);
 
-        int i = 0;
-        int j = 0;
+        int p = 0;
         // pick [0][0] and [0][1]
-        if (twinBlocks[i][j] == 0 || twinBlocks[i][j + 1] == 0) {
-            i++;
+        if (twinBlocks[p] == 0 || twinBlocks[p + 1] == 0) {
+            p += side;
         }
-        swapGrid(twinBlocks, i, j, i, j + 1);
-        return new Board(twinBlocks);       // convert this twin into Board
+        swapGrid(twinBlocks, p, p+1);
+        return new Board(twinBlocks, side);     // convert this twin into Board
     }
 
     // does this board equal y?
     @Override
     public boolean equals(Object y) {
         // simply check the dimension and each element.
-        if (y.getClass() != getClass()) return false;   // is class same?
+        if (y == null) return false;                     // is it null?
+        if (y.getClass() != getClass()) return false;    // are classes same?
         Board that = (Board) y;
-        if (that.blocks.length != side) return false;             // is height same?
-        if (that.blocks[0].length != side) return false;          // is width same?
+        if (that.side != side) return false;             // are sizes same?
 
-        for (int pos=0; pos+1<(side*side); pos++) {       // is everyone same?
-            if (that.blocks[pos/side][pos%side] != blocks[pos/side][pos%side]) {
+        for (int pos = 0; pos+1 < (side*side); pos++) {  // is everyone same?
+            if (that.tile[pos] != tile[pos]) {
                 return false;
             }
         }
@@ -156,7 +155,7 @@ public class Board {
         final int prime = 2;
         int res = 1;
         for (int pos=0; pos+1<side*side; pos++) {
-            res = res*prime + blocks[pos/side][pos%side];
+            res = res*prime + blocks[pos/side][pos % side];
         }
         return res;
     }
@@ -203,14 +202,12 @@ public class Board {
         s.append(side + "\n");
         for (int i = 0; i < side; i++) {
             for (int j = 0; j < side; j++) {
-                s.append(String.format("%2d ", blocks[i][j]));
+                s.append(String.format("%2d ", tile[i * side + j]));
             }
             s.append("\n");
         }
         return s.toString();
     }
-    // unit tests (not graded)
     public static void main(String[] args) {
-
     }
 }
